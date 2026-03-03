@@ -1,11 +1,17 @@
 # regime-dependent-tail-risk-ms-garch
 Markov-switching GARCH framework with explicit tail-shift quantification and regime-weighted predictive densities for stress-period VaR evaluation.
-1. Research Motivation
+Regime-Dependent Tail Risk and Regime-Switching Predictive Distributions
+Evidence from MS-GARCH with Explicit Tail Shift Quantification
+Overview
+
+Markov-switching GARCH framework with explicit tail-shift quantification and regime-weighted predictive densities for stress-period VaR evaluation.
+
+Research Motivation
 
 Standard rolling Student-t GARCH(1,1) models generate one-step-ahead VaR forecasts using persistent volatility dynamics and fixed heavy-tailed innovations.
 
 In calm periods, coverage is close to nominal levels.
-However, during high-volatility regimes, systematic under-coverage emerges:
+In high-volatility regimes, systematic under-coverage emerges:
 
 VaR95 violations: 11.84% (vs 5% nominal)
 
@@ -22,214 +28,109 @@ Heavy-tailed innovations (ν ≈ 6–8)
 Therefore, miscalibration cannot be attributed to volatility clustering alone.
 
 Central hypothesis:
-Stress regimes involve structural tail thickening — a shift in tail curvature beyond simple variance scaling.
+Stress regimes involve structural tail thickening — a shift in tail curvature beyond variance scaling.
 
-
-2. Contributions
+Contributions
 
 This project develops a three-stage empirical framework:
 
-(1) Regime-Conditional Backtesting
+1. Regime-Conditional Backtesting
 
-Out-of-sample VaR forecasts are evaluated conditional on volatility regimes, documenting state-dependent failure.
+Out-of-sample VaR forecasts evaluated conditional on volatility states.
 
-(2) Explicit Tail Shift Quantification
+2. Tail-Shift Quantification (POT–GPD)
 
-Using a Peaks-over-Threshold (POT) framework:
+Peaks-over-Threshold estimation
 
-Generalized Pareto Distribution (GPD) estimation
+Regime-specific GPD tail index (ξ)
 
-Regime-specific tail index (ξ) estimation
+Bootstrap inference for cross-regime differences
 
-Bootstrap inference for cross-regime tail index differences
+3. Regime-Weighted Predictive Density
+𝑓
+(
+𝑟
+𝑡
++
+1
+)
+=
+(
+1
+−
+𝑝
+𝑡
+)
+𝑓
+𝑙
+𝑜
+𝑤
++
+𝑝
+𝑡
+𝑓
+ℎ
+𝑖
+𝑔
+ℎ
+f(r
+t+1
+	​
 
-This isolates structural tail changes beyond volatility scale effects.
+)=(1−p
+t
+	​
 
-(3) Regime-Weighted Predictive Density
+)f
+low
+	​
 
-A probabilistic Markov-switching mixture density is constructed:
++p
+t
+	​
 
-f(rₜ₊₁) = (1 − pₜ) f_low + pₜ f_high
+f
+high
+	​
 
-Filtered regime probabilities reshape the full predictive distribution, allowing tail curvature to vary endogenously.
 
+Filtered regime probabilities reshape the entire predictive distribution.
 
+Key Empirical Results
+Regime-Dependent VaR Failure
 
+Severe under-coverage concentrated in stress regimes
 
-3. Data
+VaR95 reduced from 11.84% → 10.68% under mixture specification
 
-Sample: 1 January 1996 – 31 December 2025
-6,268 aligned daily observations
+Extreme 99% tails remain difficult to calibrate
 
-Variables
+Evidence of Structural Tail Thickening
 
-SPY log returns (Yahoo Finance)
+Tail-event frequency increases multiple-fold in stress states
 
-VIX index levels (Yahoo Finance)
+Bootstrap rejects equality of tail indices across regimes
 
-3-month and 10-year Treasury yields (FRED)
+Monotonic gradient across filtered MS probabilities
 
-Extreme left-tail events occur with unconditional frequency below 1%, but cluster strongly in stress regimes.
+Data
 
+SPY returns (Yahoo Finance)
 
+VIX index
 
+3M and 10Y Treasury yields (FRED)
 
-4. Regime Definitions
+Sample: 1996–2025
 
-Three complementary classifications are used:
+6,268 daily observations
 
-Exogenous Regimes (VIX Quantiles)
-
-Low: 3,528 days
-
-Mid: 1,320 days
-
-High: 1,420 days
-
-Extreme losses are several times more frequent in VIX-high states.
-
-Endogenous Regimes (Two-State MS-GARCH)
-
-Latent state inferred via maximum likelihood filtering (Hamilton filter).
-Provides sharper separation of calm and stress periods than VIX classification.
-
-Policy-Shock Indicator (Supplementary)
-
-Monetary tightening / easing episodes defined via standardized rate changes.
-
-
-
-
-
-5. Methodology
-Baseline Model
-
-Rolling Student-t GARCH(1,1):
-
-One-step-ahead VaR forecasts
-
-5,008 aligned out-of-sample days
-
-Kupiec (UC) and Christoffersen (CC) backtests
-
-Tail Diagnostics
-
-Standardized residuals constructed from conditional volatility forecasts.
-POT estimation applied to left-tail exceedances.
-
-MS-GARCH
-
-Two-state Markov-switching GARCH with regime-specific parameters and degrees of freedom.
-Multiple random initializations used to mitigate local maxima.
-State relabeling ensures state 2 corresponds to higher unconditional volatility.
-
-Predictive Mixture
-
-Regime-weighted Student-t density.
-VaR and ES computed from the full mixture distribution via numerical inversion.
-
-
-
-
-6. Empirical Results
-6.1 Regime-Conditional VaR Failure
-
-Under VIX-high regimes:
-
-VaR95 ≈ 10–12% violation rate
-
-VaR99 ≈ 3%+ violation rate
-
-Low regimes remain near nominal.
-
-Backtest rejection is driven by stress-period under-coverage, not uniform model failure.
-
-
-
-6.2 Structural Tail Shift (POT–GPD)
-
-Tail-event frequency (z < −3):
-
-0.28% in VIX-low
-
-1.90% in VIX-high (~6.7× increase)
-
-GPD tail index estimates:
-
-High regime: ξ ≈ 0.62 (95% CI [0.51, 0.83])
-
-Bootstrap rejects equality of ξ across regimes
-
-Stress states exhibit structural tail thickening beyond variance scaling.
-
-
-
-6.3 Regime-Mixture Calibration
-
-Mixture density reduces high-regime VaR95 violations:
-
-11.84% → 10.68%
-
-Improvement is stronger at 95% than 99%.
-Extreme far tails remain statistically difficult due to data sparsity (~0.37% OOS tail frequency).
-
-
-
-
-6.4 Transition Dynamics (Event Study)
-
-Low→High regime switches show:
-
-Immediate volatility level shift (persistent elevation)
-
-Extreme losses spike sharply at transition date
-
-Tail index does not shift discretely within short window
-
-Logistic regression:
-
-VIX-high increases odds of extreme event by ~6.9×
-
-Policy shocks not significant
-
-Regime entry reflects structural volatility change rather than isolated shock.
-
-
-
-
-
-7. Interpretation
-
-A single-state Student-t specification imposes constant tail curvature.
-When the data-generating process exhibits regime-dependent tail behaviour, no single heavy-tailed distribution can simultaneously match calm and stress periods.
-
-Regime-weighted mixture densities partially resolve this by allowing predictive shape to vary probabilistically.
-
-This supports a structural distributional explanation of VaR breakdown.
-
-
-
-
-
-8. Limitations
-
-Two-state structure may be coarse
-
-Constant transition probabilities
-
-Extreme quantile estimation limited by low tail frequency
-
-Risk-neutral pricing extension not implemented
-
-
-
-
-9. Reproducibility
+Reproducibility
 Requirements
 pip install numpy pandas scipy statsmodels arch scikit-learn matplotlib seaborn fredapi yfinance
 Notebook Order
 
-Data download and alignment
+Data download
 
 Baseline GARCH backtest
 
@@ -241,4 +142,12 @@ Regime-mixture forecast
 
 Event study
 
-All models use rolling windows with aligned one-step-ahead forecasts.
+Limitations
+
+Two-state structure
+
+Constant transition probabilities
+
+Low extreme-event frequency (~0.37%)
+
+No risk-neutral extension
