@@ -402,6 +402,8 @@ It does not implement a risk-neutral pricing extension for derivatives or option
 
 ## 11. Reproducibility
 
+## 11. Reproducibility
+
 ### 11.1 Repository Structure
 
 ```text
@@ -410,7 +412,26 @@ regime-dependent-tail-risk-ms-garch/
 ├── README.md
 ├── requirements.txt
 ├── report.pdf
-└── ms_garch_tail_risk_analysis.ipynb
+├── ms_garch_tail_risk_analysis.ipynb
+│
+├── figures/
+│   ├── var_violations_by_regime.png
+│   ├── tail_xi_ci_by_vix_regime.png
+│   ├── tail_xi_ci_by_ms_p2_bin.png
+│   ├── regime_probability_timeseries.png
+│   ├── mixture_vs_baseline_var.png
+│   ├── event_study_transition_volatility.png
+│   └── event_study_extreme_loss_rate.png
+│
+└── tables/
+    ├── key_results_summary.csv
+    ├── var_backtest_summary.csv
+    ├── regime_conditional_var_failures.csv
+    ├── tail_index_by_regime.csv
+    ├── mixture_vs_baseline_var.csv
+    ├── event_study_summary.csv
+    ├── logistic_regression_summary.csv
+    └── ms_garch_multistart_summary_stage2_only.csv
 ```
 
 ### 11.2 Install Requirements
