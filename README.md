@@ -43,56 +43,11 @@ The key diagnostic is not only whether the model fails, but where it fails. If v
 
 ---
 
-## 3. Why This Matters for Market Risk
-
-This project is relevant to front-office risk, market-risk methodology, and model validation because it focuses on the failure mode of a standard VaR model.
-
-### 3.1 Market-Risk Relevance
-
-The project evaluates:
-
-- One-step-ahead VaR forecasting.
-- VaR95 and VaR99 breach behaviour.
-- Regime-conditional failure rates.
-- Stress-state tail-event concentration.
-- Expected Shortfall from predictive distributions.
-- Event behaviour around transitions into high-volatility states.
-
-The main risk-management insight is that VaR breaches are not evenly distributed through time. They cluster in stress states, where the return distribution becomes more difficult to represent with a single-state model.
-
-### 3.2 Model-Risk Relevance
-
-The benchmark GARCH model is treated as a model requiring validation rather than as a final answer.
-
-The project uses:
-
-- Kupiec unconditional coverage tests.
-- Christoffersen conditional coverage tests.
-- Regime-conditional VaR diagnostics.
-- Tail-index estimation by state.
-- Comparison between single-state and regime-sensitive predictive distributions.
-
-The model-risk issue is that a Student-t GARCH model can appear sophisticated while still imposing constant tail curvature across calm and stressed markets.
-
-### 3.3 Stress-Testing Relevance
-
-The project studies stress behaviour using both observable and latent regime definitions:
-
-- VIX-based volatility regimes.
-- Markov-switching volatility-state probabilities.
-- Extreme left-tail event indicators.
-- Tail-index estimates by regime.
-- Event-study diagnostics around low-to-high regime transitions.
-
-The stress-testing focus is distributional: the project asks whether the left tail changes shape in stress, not simply whether volatility rises.
-
----
-
-## 4. Data
+## 3. Data
 
 The analysis uses daily U.S. market data from January 2005 to December 2025.
 
-### 4.1 Core Variables
+### 3.1 Core Variables
 
 | Variable | Source | Role |
 |---|---|---|
@@ -101,7 +56,7 @@ The analysis uses daily U.S. market data from January 2005 to December 2025.
 | 3-month Treasury yield | FRED | Short-rate and policy-shock proxy |
 | 10-year Treasury yield | FRED | Yield-curve and macro-financial context |
 
-### 4.2 Dataset Summary
+### 3.2 Dataset Summary
 
 | Item | Output |
 |---|---:|
@@ -110,7 +65,7 @@ The analysis uses daily U.S. market data from January 2005 to December 2025.
 | Final modelling sample | `4,001` observations |
 | Rolling GARCH out-of-sample sample | `2,741` observations |
 
-### 4.3 Regime Counts
+### 3.3 Regime Counts
 
 VIX regimes are defined using rolling quantiles with no look-ahead bias.
 
@@ -128,7 +83,7 @@ Policy-shock labels are used as supplementary explanatory variables rather than 
 | Tightening shock | 611 |
 | Easing shock | 544 |
 
-### 4.4 Data Notes
+### 3.4 Data Notes
 
 - SPY log returns are the main risk series.
 - VIX is used to classify observable volatility regimes.
@@ -140,9 +95,9 @@ A more production-ready version should include cached data files or a fallback d
 
 ---
 
-## 5. Methodology
+## 4. Methodology
 
-### 5.1 Rolling Student-t GARCH Benchmark
+### 4.1 Rolling Student-t GARCH Benchmark
 
 The benchmark model is a rolling Student-t GARCH(1,1) model estimated on historical return windows.
 
@@ -159,7 +114,7 @@ The benchmark is evaluated using:
 
 The purpose of the benchmark is to provide a realistic but interpretable market-risk model against which regime-dependent methods can be assessed.
 
-### 5.2 Observable Regimes Using VIX
+### 4.2 Observable Regimes Using VIX
 
 The first regime classification uses VIX as an observable stress proxy.
 
@@ -167,7 +122,7 @@ The notebook separates market states into low, mid, and high volatility regimes 
 
 This provides a transparent, economically interpretable stress classification.
 
-### 5.3 Tail-Risk Estimation Using POT-GPD
+### 4.3 Tail-Risk Estimation Using POT-GPD
 
 The project uses Peaks-over-Threshold Extreme Value Theory to estimate downside tail behaviour by regime.
 
@@ -181,7 +136,7 @@ The tail-risk workflow is:
 
 The aim is to test whether stress states are associated with thicker downside tails, not only larger conditional variance.
 
-### 5.4 Markov-Switching Regime Probabilities
+### 4.4 Markov-Switching Regime Probabilities
 
 The project also estimates latent volatility-state probabilities using a two-state Markov-switching framework.
 
@@ -194,7 +149,7 @@ The estimated probability of the high-volatility state is used as an input to th
 
 The current notebook implementation should be treated as a research implementation rather than a production-grade MS-GARCH library. It includes numerical stabilisation and approximation steps, which are useful for experimentation but should be documented carefully in model validation.
 
-### 5.5 Regime-Weighted Predictive Distribution
+### 4.5 Regime-Weighted Predictive Distribution
 
 The predictive density is represented as a regime-weighted mixture:
 
@@ -212,9 +167,9 @@ This approach changes the full predictive distribution as regime probabilities c
 
 ---
 
-## 6. Empirical Results
+## 5. Empirical Results
 
-### 6.1 Baseline Student-t GARCH Fit
+### 5.1 Baseline Student-t GARCH Fit
 
 The full-sample Student-t GARCH(1,1) fit shows high volatility persistence and heavy-tailed innovations.
 
@@ -228,7 +183,7 @@ The full-sample Student-t GARCH(1,1) fit shows high volatility persistence and h
 
 This confirms that the benchmark model already allows volatility clustering and heavy-tailed shocks. Therefore, stress-period VaR failures are not solely due to the use of a Gaussian or non-persistent volatility model.
 
-### 6.2 Markov-Switching Volatility Classification
+### 5.2 Markov-Switching Volatility Classification
 
 The fast two-state Markov-switching volatility classification gives persistent low- and high-volatility states.
 
@@ -246,7 +201,7 @@ The fast two-state Markov-switching volatility classification gives persistent l
 
 The estimated transition matrix indicates persistent state dynamics. However, this block should be interpreted as a fast Markov-switching volatility-classification approximation rather than a fully validated custom MS-GARCH maximum-likelihood implementation.
 
-### 6.3 Robustness of the MS Approximation
+### 5.3 Robustness of the MS Approximation
 
 A fast multi-start robustness check was used to test whether the volatility-state ordering is stable under perturbations.
 
@@ -262,7 +217,7 @@ A fast multi-start robustness check was used to test whether the volatility-stat
 
 The state ordering is stable across starts, but several runs use fallback logic after numerical failures. This is a model-governance point: the regime signal is useful for diagnostics, but a production system would require stronger convergence controls.
 
-### 6.4 Tail Events Are Concentrated in High-Volatility Regimes
+### 5.4 Tail Events Are Concentrated in High-Volatility Regimes
 
 Standardised left-tail events are much more frequent in high-VIX states.
 
@@ -274,7 +229,7 @@ Standardised left-tail events are much more frequent in high-VIX states.
 
 The probability of a severe standardised left-tail event, defined as `z < -3`, rises from approximately 0.21% in low-VIX regimes to approximately 2.59% in high-VIX regimes.
 
-### 6.5 Tail Structure by Policy Regime
+### 5.5 Tail Structure by Policy Regime
 
 Policy-shock regimes are less clean than VIX regimes for separating market stress.
 
@@ -286,7 +241,7 @@ Policy-shock regimes are less clean than VIX regimes for separating market stres
 
 The main stress-regime separation comes from VIX, while policy shocks are used as supplementary explanatory variables.
 
-### 6.6 POT-GPD Tail-Index Evidence
+### 5.6 POT-GPD Tail-Index Evidence
 
 The Peaks-over-Threshold analysis provides evidence that downside tail behaviour changes by regime, although inference is sample-limited.
 
@@ -299,7 +254,7 @@ The estimated high-low tail-index difference is 0.461139. A bootstrap test gives
 
 Interpretation: the point estimates support thicker high-regime tails, but the bootstrap test is borderline and does not reject equality at the 5% level. 
 
-### 6.7 Overall VaR Backtesting
+### 5.7 Overall VaR Backtesting
 
 | Model | Effective n | Violation rate | Nominal rate | Breaches | Kupiec p-value | Christoffersen independence p-value | Conditional coverage p-value |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -310,7 +265,7 @@ Interpretation: the point estimates support thicker high-regime tails, but the b
 
 The benchmark Student-t GARCH is close to acceptable at the 95% level on average, but it fails more clearly at the 99% level. The MS-mixture implementation in this run does not improve overall calibration.
 
-### 6.8 VaR Backtesting by VIX Regime
+### 5.8 VaR Backtesting by VIX Regime
 
 The rolling Student-t GARCH benchmark is much less well calibrated in high-volatility states than in calm states.
 
@@ -327,7 +282,7 @@ The key result is regime-conditional model failure. VaR breaches are concentrate
 
 In this notebook run, the MS-mixture version is less conservative on average and produces slightly higher violation rates than the rolling Student-t GARCH benchmark. This is useful from a model-risk perspective because it shows that adding regime probabilities does not automatically improve tail calibration.
 
-### 6.9 Forecast-Instability Diagnostics
+### 5.9 Forecast-Instability Diagnostics
 
 Forecast errors are more severe in high-volatility regimes.
 
@@ -339,7 +294,7 @@ Forecast errors are more severe in high-volatility regimes.
 
 Large forecast misses are much more common in high-VIX states than in calm states.
 
-### 6.10 Transition Event Study
+### 5.10 Transition Event Study
 
 Strict low-to-high VIX transitions are rare in the out-of-sample window, but they show a clear increase in predicted volatility and VaR failures after transition.
 
@@ -350,7 +305,7 @@ Strict low-to-high VIX transitions are rare in the out-of-sample window, but the
 
 A broader event profile identifies 19 strict transition events and 23 relaxed transition events. Around transition date `tau = 0`, the event profile shows a sharp increase in extreme-event rates and forecast error ratio. Predicted volatility rises after the transition and remains elevated for several days.
 
-### 6.11 Policy-Shock and Regime Effects
+### 5.11 Policy-Shock and Regime Effects
 
 A logistic model for extreme tail events finds that adding VIX-regime terms materially improves fit.
 
@@ -361,7 +316,7 @@ A logistic model for extreme tail events finds that adding VIX-regime terms mate
 
 The average marginal effect of being in a high-VIX regime rather than a low-VIX regime is approximately 2.34 percentage points. Shock interactions are not statistically strong in this specification.
 
-### 6.12 Exploratory ML Diagnostics
+### 5.12 Exploratory ML Diagnostics
 
 Gradient Boosting and XGBoost classifiers were tested as supplementary tail-event prediction tools.
 
@@ -387,17 +342,17 @@ The XGBoost calibration table shows that predicted event probabilities are very 
 
 ---
 
-## 7. Figures and Generated Outputs
+## 6. Figures and Generated Outputs
 
 The notebook generates figures and tables that support the empirical results. If these files are committed to the repository, they can be displayed directly in this README.
 
-### 7.1 VIX Regime Timeline
+### 6.1 VIX Regime Timeline
 
 ![VIX regime timeline](figures/regime_timeline_vix_regime.png)
 
 This chart shows the rolling VIX-regime classification over time. High-VIX states cluster around known stress periods, including the European sovereign-debt period, the COVID-19 shock, and later volatility spikes.
 
-### 7.2 VaR Backtest Violations by VIX Regime
+### 6.2 VaR Backtest Violations by VIX Regime
 
 ![Backtest violations by VIX regime — VaR95](figures/backtest_violation_by_vix_var95.png)
 
@@ -405,7 +360,7 @@ This chart shows the rolling VIX-regime classification over time. High-VIX state
 
 These charts show the central backtesting result. Violation rates are close to or below nominal in low-VIX regimes, but they rise sharply in high-VIX regimes. At VaR95, high-regime violation rates are approximately 13%. At VaR99, high-regime violation rates are above 4% for the Student-t GARCH benchmark and above 5% for the MS-mixture implementation.
 
-### 7.3 Tail-Index Estimates by Regime
+### 6.3 Tail-Index Estimates by Regime
 
 ![Tail shift: xi by VIX regime](figures/tail_xi_ci_by_vix_regime.png)
 
@@ -413,7 +368,7 @@ These charts show the central backtesting result. Violation rates are close to o
 
 These figures report GPD tail-index estimates with bootstrap confidence intervals. Positive xi estimates indicate heavy-tail behaviour. The VIX-high estimate is materially positive, although inference is sample-limited because the number of extreme tail observations is small.
 
-### 7.4 Event Study Around Low-to-High Regime Transitions
+### 6.4 Event Study Around Low-to-High Regime Transitions
 
 ![Event study strict](figures/event_study_strict.png)
 
@@ -421,7 +376,7 @@ These figures report GPD tail-index estimates with bootstrap confidence interval
 
 The event-study figures show average predicted volatility, extreme-event rate, and average tail-index behaviour around low-to-high regime transitions. The main pattern is a sharp spike in extreme-event rates around the transition date and an increase in predicted volatility after the transition.
 
-### 7.5 ML Calibration Diagnostics
+### 6.5 ML Calibration Diagnostics
 
 ![Calibration curve — GBDT](figures/calibration_GBDT.png)
 
@@ -429,7 +384,7 @@ The event-study figures show average predicted volatility, extreme-event rate, a
 
 The calibration plots show that the ML classifiers assign very low probabilities to rare tail events and have limited discriminatory power. These models are included as exploratory diagnostics, not as the main contribution of the project.
 
-### 7.6 Generated Tables
+### 6.6 Generated Tables
 
 The notebook also exports or can export the following tables:
 
@@ -452,7 +407,7 @@ tables/ml_tail_event_summary.csv
 
 ---
 
-## 8. Technical Stack
+## 7. Technical Stack
 
 The project uses Python and standard quantitative-finance libraries:
 
@@ -471,7 +426,7 @@ The live `requirements.txt` should be treated as the source of truth for the cur
 
 ---
 
-## 9. Repository Structure
+## 8. Repository Structure
 
 Current repository structure:
 
@@ -514,9 +469,9 @@ If figures, tables, or reports are exported in a local run, they should either b
 
 ---
 
-## 10. How to Run
+## 9. How to Run
 
-### 10.1 Install Dependencies
+### 9.1 Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -528,7 +483,7 @@ If running from a clean environment, it may also be useful to install Jupyter su
 pip install jupyter ipykernel
 ```
 
-### 10.2 Run the Notebook
+### 9.2 Run the Notebook
 
 Open:
 
@@ -551,7 +506,7 @@ The notebook workflow covers:
 9. Running event-study and classification diagnostics.
 10. Exporting summary tables and figures where configured.
 
-### 10.3 FRED API Note
+### 9.3 FRED API Note
 
 Treasury-yield data require a FRED API key. If the key is not provided, the Treasury-yield and policy-shock parts of the analysis may not run.
 
@@ -559,47 +514,47 @@ For full reproducibility, a future version should add cached CSV data or a fallb
 
 ---
 
-## 11. Model Governance and Limitations
+## 10. Model Governance and Limitations
 
-### 11.1 Two-State Regime Design
+### 10.1 Two-State Regime Design
 
 The project uses a two-state regime structure. This is interpretable but may be too coarse for real market-risk systems. A three-state framework could separate calm, elevated-risk, and crisis regimes.
 
-### 11.2 Constant Transition Probabilities
+### 10.2 Constant Transition Probabilities
 
 The Markov-switching component uses constant transition probabilities. In production, transition probabilities may depend on VIX, liquidity indicators, macro variables, or market microstructure conditions.
 
-### 11.3 Numerical Stability and Approximation
+### 10.3 Numerical Stability and Approximation
 
 MS-GARCH-type models are numerically challenging. The notebook uses stabilisation and approximation steps to obtain usable regime probabilities. This is acceptable for a research project, but a production model would require stronger estimation controls, convergence diagnostics, and sensitivity tests.
 
-### 11.4 Local Optima
+### 10.4 Local Optima
 
 Regime-switching likelihoods can be sensitive to starting values. A production-grade implementation should use multiple random initialisations, compare likelihood values, and report parameter stability.
 
-### 11.5 Sparse Far-Tail Data
+### 10.5 Sparse Far-Tail Data
 
 The far left tail contains very few observations. This limits the precision of VaR99, Expected Shortfall, and GPD tail-index estimates. Bootstrap confidence intervals help, but they do not remove the sample-size problem.
 
-### 11.6 Single-Asset Scope
+### 10.6 Single-Asset Scope
 
 SPY is used as the main equity proxy. This improves interpretability but limits cross-asset generality. A stronger market-risk framework would test the method across equity indices, rates, FX, credit, and commodities.
 
-### 11.7 Reproducibility
+### 10.7 Reproducibility
 
 Live data downloads can create small changes in results because financial data may be revised, adjusted, or temporarily unavailable. For a fully reproducible public repository, the project should include cached data or versioned output tables.
 
-### 11.8 MS-Mixture Calibration Result
+### 10.8 MS-Mixture Calibration Result
 
 The regime-weighted predictive density is conceptually useful, but in the current run it does not outperform the benchmark Student-t GARCH in VaR backtesting. This is a model-validation finding rather than a failure to hide: a more flexible model can still be misspecified if the regime-specific density or transition mechanism is not sufficiently accurate.
 
-### 11.9 Not a Production Risk Model
+### 10.9 Not a Production Risk Model
 
 This project is for research and educational purposes. It is not investment advice and should not be treated as a production VaR model without additional validation.
 
 ---
 
-## 12. Future Improvements
+## 11. Future Improvements
 
 Possible extensions:
 
@@ -618,7 +573,7 @@ Possible extensions:
 
 ---
 
-## 13. Disclaimer
+## 12. Disclaimer
 
 This repository is a research project in quantitative market risk. It is intended to demonstrate empirical modelling, tail-risk diagnostics, and model-validation reasoning. It is not investment advice and is not a production trading or risk-management system.
 
