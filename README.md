@@ -181,7 +181,7 @@ The full-sample Student-t GARCH(1,1) fit shows high volatility persistence and h
 | alpha + beta | 0.986668 |
 | Student-t degrees of freedom | 5.707818 |
 
-This confirms that the benchmark model already allows volatility clustering and heavy-tailed shocks. Therefore, stress-period VaR failures are not solely due to the use of a Gaussian or non-persistent volatility model.
+This confirms that the benchmark model already allows volatility clustering and heavy-tailed shocks. A single Student-t innovation distribution may still be too restrictive if tail behaviour changes across market regimes.
 
 ### 5.2 Markov-Switching Volatility Classification
 
